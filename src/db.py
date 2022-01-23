@@ -70,12 +70,7 @@ def join_user(
     """
     Joins the user to the system.
 
-    Args:
-        user:
-        session:
-
     Returns: User or None
-
     """
     found_user = session.exec(
         select(User).where(User.telegram_chat_id == user.telegram_chat_id)
@@ -101,12 +96,7 @@ def leave_user(
     """
     Deactivates the user.
 
-    Args:
-        user:
-        session:
-
     Returns: User or None
-
     """
     found_user = session.exec(
         select(User).where(User.telegram_chat_id == user.telegram_chat_id)
@@ -131,12 +121,7 @@ def get_user_status(
     """
     Get status of the user.
 
-    Args:
-        telegram_chat_id:
-        session:
-
     Returns: (gmt,active)
-
     """
     found_user = session.exec(
         select(User).where(User.telegram_chat_id == telegram_chat_id)
@@ -154,12 +139,7 @@ def select_random_memory(
     """
     Select random memory from user's memory-vault.
 
-    Args:
-        user:
-        session:
-
-    Returns:
-
+    Returns: None or False or Reminder
     """
     found_user = session.exec(
         select(User).where(User.telegram_chat_id == user.telegram_chat_id)
@@ -181,12 +161,7 @@ def list_memories(
     """
     Return all the memory-vault.
 
-    Args:
-        user:
-        session:
-
-    Returns:
-
+    Returns: None or Reminder List
     """
     found_user = session.exec(
         select(User).where(User.telegram_chat_id == user.telegram_chat_id)
@@ -205,13 +180,7 @@ def add_memory(
     """
     Add a memory to user's memory-vault.
 
-    Args:
-        user:
-        memory:
-        session:
-
     Returns: Reminder
-
     """
     found_user = session.exec(
         select(User).where(User.telegram_chat_id == user.telegram_chat_id)
@@ -250,13 +219,7 @@ def delete_memory(
     """
     Delete a memory from user's memory-vault.
 
-    Args:
-        user:
-        memory_id:
-        session:
-
-    Returns: bool
-
+    Returns: None or True or Memory
     """
 
     found_user = session.exec(
@@ -304,11 +267,7 @@ def get_schedule(
     """
     Get schedule of the user.
 
-    Args:
-        user:
-        session:
-
-    Returns: str or None
+    Returns: scheduled_hours or None
     """
     found_user = session.exec(
         select(User).where(User.telegram_chat_id == user.telegram_chat_id)
@@ -326,12 +285,7 @@ def reset_schedule(
     """
     Reset schedule of the user.
 
-    Args:
-        user:
-        session:
-
-    Returns: str or None
-
+    Returns: scheduled_hours or None
     """
     found_user = session.exec(
         select(User).where(User.telegram_chat_id == user.telegram_chat_id)
@@ -352,15 +306,9 @@ def remove_hour_from_schedule(
     session: Session = next(get_session()),
 ) -> Optional[str]:
     """
-    Remove all appearances of hour from schedule of the user.
+    Remove all appearances of an hour from schedule of the user.
 
-    Args:
-        user:
-        hour:
-        session:
-
-    Returns: str or None
-
+    Returns: scheduled_hours or None
     """
     found_user = session.exec(
         select(User).where(User.telegram_chat_id == user.telegram_chat_id)
@@ -390,13 +338,7 @@ def add_hours_to_the_schedule(
     """
     Add hours to the schedule of the user.
 
-    Args:
-        user:
-        schedule_list:
-        session:
-
     Returns: str or None
-
     """
     found_user = session.exec(
         select(User).where(User.telegram_chat_id == user.telegram_chat_id)
@@ -424,6 +366,11 @@ def db_create_user(
     user: UserCreate,
     session: Session = next(get_session()),
 ) -> Optional[User]:
+    """
+    Creates a user in the database
+
+    Returns: User or None
+    """
     try:
         user = User.from_orm(user)
         session.add(user)
@@ -442,8 +389,15 @@ def db_read_users(
     offset: int = 0,
     limit: int = 100,
 ) -> List[User]:
+    """
+    Read users from the database
+
+    Returns: List of Users
+    """
     if only_active_users:
-        users = session.exec(select(User).where(User.active).offset(offset).limit(limit)).all()
+        users = session.exec(
+            select(User).where(User.active).offset(offset).limit(limit)
+        ).all()
     else:
         users = session.exec(select(User).offset(offset).limit(limit)).all()
     return users
@@ -452,6 +406,8 @@ def db_read_users(
 def create_schedule_array(schedule_str: str) -> List[int]:
     """
     Create schedule array from schedule string splitted by comas(,).
+
+    Returns: Schedule Array
     """
     if schedule_str == "":
         return []
